@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
@@ -23,7 +24,6 @@ public class Signup extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField id_textField;
 	private JTextField nickname_textField;
 	private JTextField email_textField;
 	private JTextField number_textField;
@@ -41,13 +41,6 @@ public class Signup extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-
-		// id
-		JLabel id_label = new JLabel("id");
-
-		id_textField = new JTextField();
-		id_textField.setToolTipText("");
-		id_textField.setColumns(10);
 
 		// password
 
@@ -98,10 +91,14 @@ public class Signup extends JFrame {
 				
 				ConnectingDB dbConnector = new ConnectingDB();
 				try {
-					updateUser(dbConnector.getConnection(), id_textField.getText(),password_textField.getText(),nickname_textField.getText(),
-							email_textField.getText(), Integer.parseInt(number_textField.getText()),Integer.parseInt(birth_textField.getText()), gender_comboBox.getSelectedItem().toString()	);
+					if(updateUser(dbConnector.getConnection(),password_textField.getText(),nickname_textField.getText(),
+							email_textField.getText(),number_textField.getText(),birth_textField.getText(), gender_comboBox.getSelectedItem().toString())	);
+					{
+						Signin signin= new Signin();
+						setVisible(false);
+						signin.setVisible(true);
+					}
 					
-				
 					
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -132,33 +129,42 @@ public class Signup extends JFrame {
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap(37, Short.MAX_VALUE)
+					.addGap(37)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
 								.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-										.addComponent(id_label)
 										.addComponent(number_label, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
 										.addComponent(birth_label, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)
-										.addComponent(email_label, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
-										.addComponent(pw_label, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(nickname_label, GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE))
+										.addGroup(gl_contentPane.createSequentialGroup()
+											.addComponent(nickname_label, GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
+											.addPreferredGap(ComponentPlacement.RELATED))
+										.addGroup(gl_contentPane.createSequentialGroup()
+											.addComponent(pw_label, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+											.addPreferredGap(ComponentPlacement.RELATED))
+										.addGroup(gl_contentPane.createSequentialGroup()
+											.addComponent(email_label, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
+											.addPreferredGap(ComponentPlacement.RELATED)))
 									.addComponent(gender_label, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE))
 								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(BackBtn)
 									.addPreferredGap(ComponentPlacement.RELATED)))
-							.addGap(12)
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
-								.addComponent(birth_textField, Alignment.LEADING)
-								.addComponent(number_textField, Alignment.LEADING)
-								.addComponent(email_textField, Alignment.LEADING)
-								.addComponent(nickname_textField, Alignment.LEADING)
-								.addComponent(id_textField, Alignment.LEADING)
-								.addComponent(gender_comboBox, Alignment.LEADING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(signup_button)
-								.addComponent(password_textField))
-							.addContainerGap(81, Short.MAX_VALUE))
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+								.addGroup(gl_contentPane.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
+										.addComponent(birth_textField, Alignment.LEADING)
+										.addComponent(gender_comboBox, Alignment.LEADING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(signup_button)
+										.addComponent(number_textField)
+										.addComponent(nickname_textField)))
+								.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+										.addComponent(password_textField, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+										.addComponent(email_textField, 108, 108, 108))))
+							.addGap(81))
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
 							.addGap(146))))
@@ -167,23 +173,19 @@ public class Signup extends JFrame {
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-					.addGap(17)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(id_label)
-						.addComponent(id_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(26)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(pw_label)
-						.addComponent(password_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(28)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(nickname_label)
-						.addComponent(nickname_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(27)
+					.addGap(57)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(email_label)
 						.addComponent(email_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(30)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+						.addComponent(pw_label)
+						.addComponent(password_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(33)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+						.addComponent(nickname_label)
+						.addComponent(nickname_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(47)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(number_label)
 						.addComponent(number_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
@@ -204,28 +206,90 @@ public class Signup extends JFrame {
 		contentPane.setLayout(gl_contentPane);
 	}
 	
-	private static void updateUser(Connection con, String user, String password, String nn, String email, int phoneNumber, int birth, String gender) {
-	    String insertQuery = "INSERT INTO user (id, password, nickname, email, phone_number, birth_date, gender) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	private static boolean updateUser(Connection con, String password, String nn, String email, String phoneNumber, String birth, String gender) {
+		 
+		 if(EmailExistsInTable(con, email)) {
+			 duplicateEmail error=new duplicateEmail();
+			 error.setVisible(true);
+			 return false;
+		 }
+		 else {
+		 String randomId = generateRandomId(con);
+	    String insertQuery = "INSERT INTO user ( id, email, password, nickname, phone_number, birth_date, gender) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	    try {
 	        PreparedStatement state = con.prepareStatement(insertQuery);
-	        state.setString(1, user);
-	        state.setString(2, password);
-	        state.setString(3, nn);
-	        state.setString(4, email);
-	        state.setInt(5, phoneNumber);
-	        state.setInt(6, birth);
+	     
+	        state.setString(1, randomId);
+	        state.setString(2, email);
+	        state.setString(3, password);
+	        state.setString(4, nn);
+	        state.setString(5, phoneNumber);
+	        state.setString(6, birth);
 	        state.setString(7, gender);
 
 	        int rowsAffected = state.executeUpdate();
 
 	        if (rowsAffected > 0) {
 	            System.out.println("User ID saved to the database.");
+	           return true;
+	            
+	            
 	        } else {
 	            System.out.println("Failed to save user ID to the database.");
+	            return false;
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	    }
+	    }}
+		 return false;
 	}
+	 public static String generateRandomId(Connection con) {
+	        while (true) {
+	            // 랜덤한 ID 생성
+	            long timestamp = System.currentTimeMillis();
+	            int randomInt = (int) (Math.random() * Integer.MAX_VALUE);
+	            long result = timestamp + randomInt;
+	            String randomId = Long.toString(result);
+
+	            // 생성한 ID가 특정 테이블에 이미 존재하는지 확인
+	            if (!idExistsInTable(con, randomId)) {
+	                return randomId;
+	            }
+	        }
+	    }
+
+	    private static boolean idExistsInTable(Connection con, String id) {
+	        // 특정 테이블에서 ID가 존재하는지 확인하는 로직
+	        String sql = "SELECT COUNT(*) FROM user WHERE id = ?";
+	        try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            statement.setString(1, id);
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                if (resultSet.next()) {
+	                    int count = resultSet.getInt(1);
+	                    return count > 0;
+	                }
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        return false;
+	    }
+	    private static boolean EmailExistsInTable(Connection con, String email) {
+	        // 특정 테이블에서 ID가 존재하는지 확인하는 로직
+	        String sql = "SELECT COUNT(*) FROM user WHERE email = ?";
+	        try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            statement.setString(1, email);
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                if (resultSet.next()) {
+	                    int count = resultSet.getInt(1);
+	                    return count > 0;
+	                }
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        return false;
+	    }
+
 
 }
