@@ -1,10 +1,8 @@
 package Twitter;
 
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,6 +15,10 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 
 public class Profile extends JFrame {
@@ -24,7 +26,7 @@ public class Profile extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	
-
+	final ConnectingDB dbConnector = new ConnectingDB();
 
 	public Profile() {
 		super("Profile");
@@ -51,34 +53,43 @@ public class Profile extends JFrame {
 		contentPane.add(backgroundLbl);
 		backgroundLbl.setOpaque(true);
 		
-		JLabel nameLbl = new JLabel("name");
+		// id -> nickname
+		String nickname = getIdToNickname(dbConnector.getConnection(), Signin.loggedInId);
+		
+		JLabel nameLbl = new JLabel(nickname);
 		nameLbl.setFont(new Font("Segoe UI Semibold", Font.BOLD, 19));
 		nameLbl.setBounds(12, 230, 112, 31);
 		contentPane.add(nameLbl);
 		
-		JLabel intrudoceLbl = new JLabel("introduce youself");
+		JLabel intrudoceLbl = new JLabel("introduce yourself");
 		intrudoceLbl.setFont(new Font("Segoe UI Variable", Font.BOLD, 14));
-		intrudoceLbl.setBounds(12, 281, 123, 20);
+		intrudoceLbl.setBounds(12, 281, 179, 20);
 		contentPane.add(intrudoceLbl);
 		
-		JLabel numberOfFollowings = new JLabel("0");
+		// id -> following
+		int following = getIdToFollowing(dbConnector.getConnection(), Signin.loggedInId);
+		
+		JLabel numberOfFollowings = new JLabel(String.valueOf(following));
 		numberOfFollowings.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 12));
 		numberOfFollowings.setBounds(12, 325, 25, 15);
 		contentPane.add(numberOfFollowings);
 		
 		JLabel lblNewLabel_3 = new JLabel("Followings");
 		lblNewLabel_3.setFont(new Font("굴림체", Font.ITALIC, 12));
-		lblNewLabel_3.setBounds(31, 325, 82, 15);
+		lblNewLabel_3.setBounds(31, 325, 77, 15);
 		contentPane.add(lblNewLabel_3);
 		
-		JLabel lblNewLabel = new JLabel("0");
+		// id -> follower
+		int follower = getIdToFollower(dbConnector.getConnection(), Signin.loggedInId);
+		
+		JLabel lblNewLabel = new JLabel(String.valueOf(follower));
 		lblNewLabel.setFont(new Font("휴먼둥근헤드라인", Font.PLAIN, 12));
-		lblNewLabel.setBounds(98, 325, 15, 15);
+		lblNewLabel.setBounds(130, 325, 15, 15);
 		contentPane.add(lblNewLabel);
 		
 		JLabel numberOfFollowers = new JLabel("Followers");
 		numberOfFollowers.setFont(new Font("굴림체", Font.ITALIC, 12));
-		numberOfFollowers.setBounds(119, 325, 68, 15);
+		numberOfFollowers.setBounds(156, 325, 68, 15);
 		contentPane.add(numberOfFollowers);
 		
 		JButton editBtn = new JButton("Edit Profile");
@@ -98,7 +109,61 @@ public class Profile extends JFrame {
 		contentPane.add(blueBack);
         
 	}
-	 public class CircularLabel extends JLabel {
+	 public int getIdToFollower(Connection con, String id) {
+		 try {
+			 String sql = "SELECT COUNT(*) AS FollowerCount FROM follow WHERE following = ?";
+			 try (PreparedStatement statement = con.prepareStatement(sql)) {
+				 statement.setString(1, id);
+				 
+				// 쿼리 실행 및 결과 가져오기
+		            try (ResultSet resultSet = statement.executeQuery()) {
+		            	 if (resultSet.next()) {
+		            		 int followerCount = resultSet.getInt("FollowerCount");
+			                    System.out.println("Follower count for user " + id + ": " + followerCount);
+			                    return followerCount;
+		                 } else {
+		                     System.out.println("User not found for id: " + id);
+		                     return 0; // 사용자가 존재하지 않을 경우 null 반환
+		                 }
+		            }
+			 }catch (SQLException e) {
+			        e.printStackTrace();
+			 }
+			 System.out.println("ERROR");
+			 return 0;
+		 }finally {
+			 
+		 }
+	}
+	
+	public int getIdToFollowing(Connection con, String id) {
+	    try {
+	        String sql = "SELECT COUNT(*) AS FollowingCount FROM follow WHERE follower= ?";
+	        try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            statement.setString(1, id);
+
+	            // 쿼리 실행 및 결과 가져오기
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                if (resultSet.next()) {
+	                    int followingCount = resultSet.getInt("FollowingCount");
+	                    System.out.println("Following count for user " + id + ": " + followingCount);
+	                    return followingCount;
+	                } else {
+	                    System.out.println("User not found for id: " + id);
+	                    return 0; // 사용자가 존재하지 않을 경우 0 반환
+	                }
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        System.out.println("ERROR");
+	        return 0;
+	    } finally {
+	        // 리소스 정리 (생략 가능)
+	    }
+	}
+	
+	public class CircularLabel extends JLabel {
 	        private ImageIcon imageIcon;
 
 	        public CircularLabel(String text, ImageIcon imageIcon) {
@@ -117,12 +182,37 @@ public class Profile extends JFrame {
 
 	            g.setColor(new Color(244, 244, 255));
 	            g.fillOval(x, y, diameter, diameter);
-
-	            // 이미지를 그립니다.
+	            
 	            if (imageIcon != null) {
 	                Image image = imageIcon.getImage();
 	                g.drawImage(image, x, y, diameter, diameter, this);
 	            }
 	        }
 	    }
+	 public static String getIdToNickname(Connection con, String id) {
+		 try {
+			 String sql = "SELECT Nickname FROM user WHERE id = ?";
+			 try (PreparedStatement statement = con.prepareStatement(sql)) {
+				 statement.setString(1, id);
+				 
+				// 쿼리 실행 및 결과 가져오기
+		            try (ResultSet resultSet = statement.executeQuery()) {
+		            	 if (resultSet.next()) {
+		                     String storedNickname = resultSet.getString("nickname"); // 결과가 있는지 확인하여 반환
+		                     System.out.println(storedNickname);
+		                     return storedNickname;
+		                 } else {
+		                     System.out.println("User not found for id: " + id);
+		                     return null; // 사용자가 존재하지 않을 경우 null 반환
+		                 }
+		            }
+			 }catch (SQLException e) {
+			        e.printStackTrace();
+			 }
+			 System.out.println("ERROR");
+			 return null;
+		 }finally {
+			 
+		 }
+	 }
 }
