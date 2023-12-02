@@ -3,6 +3,10 @@ package Twitter;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,6 +25,7 @@ import javax.swing.JPasswordField;
 public class Signin extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	static String loggedInId;
 	private JPanel contentPane;
 	private JTextField Email_textField;
 	private JPasswordField Password_textField;
@@ -32,6 +37,7 @@ public class Signin extends JFrame {
 		this.setSize(675, 500);	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// setBounds(100, 100, 450, 300);
+		
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -43,13 +49,36 @@ public class Signin extends JFrame {
 		
 		JButton Login_button = new JButton("LOGIN");
 		
+		final ConnectingDB dbConnector = new ConnectingDB();
+		
 		Login_button.addActionListener(new ActionListener(){
 			   public void actionPerformed(ActionEvent ae){
 			      String textFieldValue = Email_textField.getText();
+			      char[] passwordCharArray = Password_textField.getPassword();
+			      String password = new String(passwordCharArray);
+
 			      // .... do some operation on value ...
-			      Home home = new Home();
-			      setVisible(false);
-			      home.setVisible(true);
+			      if (checkEmail(dbConnector.getConnection(), textFieldValue) && CheckPassword(dbConnector.getConnection(), textFieldValue, password)) {
+			    	  String tmp = returnId(dbConnector.getConnection(), textFieldValue);
+			    	  if(tmp!=null) {
+			    		  loggedInId=tmp;
+			    	  }
+			    	  else {
+				    	  LoginFail fail = new LoginFail();
+				    	  fail.setLocationRelativeTo(null);
+				    	  fail.setVisible(true);
+				      }
+			    	 
+			    	  Home home = new Home();
+				      setVisible(false);
+				      home.setVisible(true);
+			      }
+			      else {
+			    	  LoginFail fail = new LoginFail();
+			    	  fail.setLocationRelativeTo(null);
+			    	  fail.setVisible(true);
+			      }
+			      
 			   }
 			});
 		
@@ -123,7 +152,78 @@ public class Signin extends JFrame {
 					.addComponent(SignUpBtn)
 					.addGap(109))
 		);
+	
+		
 		
 		contentPane.setLayout(gl_contentPane);
 	}
+	private static boolean CheckPassword(Connection con, String email, String password) {
+	    String sql = "SELECT password FROM user WHERE email = ?";
+	    try (PreparedStatement statement = con.prepareStatement(sql)) {
+	        // 쿼리의 파라미터 설정
+	        statement.setString(1, email);
+
+	        // 쿼리 실행 및 결과 가져오기
+	        try (ResultSet resultSet = statement.executeQuery()) {
+	            if (resultSet.next()) {
+	                // 저장된 비밀번호 가져오기
+	                String storedPassword = resultSet.getString("password");
+
+	                // 저장된 비밀번호가 존재하고 입력된 비밀번호와 일치하는지 확인
+	                return storedPassword != null && storedPassword.equals(password);
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return false;
+	}
+
+	private static boolean checkEmail(Connection con, String username) {
+	    // 데이터베이스 연결
+	    try {
+	        // SQL 쿼리 작성
+	        String sql = "SELECT * FROM user WHERE email = ?";
+	        try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            // 쿼리의 파라미터 설정
+	            statement.setString(1, username);
+
+	            // 쿼리 실행 및 결과 가져오기
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                return resultSet.next(); // 결과가 있는지 확인하여 반환
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return false;
+	}
+	private static String returnId(Connection con, String email) {
+		try {
+			String sql = "SELECT id FROM user WHERE email = ?";
+			try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            // 쿼리의 파라미터 설정
+	            statement.setString(1, email);
+
+	            // 쿼리 실행 및 결과 가져오기
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	            	 if (resultSet.next()) {
+	                     String storedId = resultSet.getString("id"); // 결과가 있는지 확인하여 반환
+	                     System.out.println(storedId);
+	                     return storedId;
+	                 } else {
+	                     System.out.println("User not found for email: " + email);
+	                     return null; // 사용자가 존재하지 않을 경우 null 반환
+	                 }
+	            }
+	        }
+		}catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+		System.out.println("ERROR");
+		return null;
+	}
+
 }
