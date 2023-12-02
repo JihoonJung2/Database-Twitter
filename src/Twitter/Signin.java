@@ -211,7 +211,7 @@ public class Signin extends JFrame {
 	            try (ResultSet resultSet = statement.executeQuery()) {
 	            	 if (resultSet.next()) {
 	                     String storedId = resultSet.getString("id"); // 결과가 있는지 확인하여 반환
-	                     System.out.println(storedId);
+	                     
 	                     return storedId;
 	                 } else {
 	                     System.out.println("User not found for email: " + email);
