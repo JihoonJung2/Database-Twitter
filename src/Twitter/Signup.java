@@ -114,6 +114,7 @@ public class Signup extends JFrame {
 			public void actionPerformed(ActionEvent ae) {
 				setVisible(false);
 				Signin Signin = new Signin();
+				Signin.setLocationRelativeTo(null);
 				Signin.setVisible(true);
 			}
 		});
