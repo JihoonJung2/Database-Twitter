@@ -33,6 +33,7 @@ public class Home extends JFrame {
 		profile_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Profile profile = new Profile();
+				profile.setLocationRelativeTo(null);
 				setVisible(false);
 				profile.setVisible(true);
 			}
