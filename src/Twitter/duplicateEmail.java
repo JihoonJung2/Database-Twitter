@@ -1,11 +1,14 @@
 package Twitter;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JButton;
 
 public class duplicateEmail extends JFrame {
 
@@ -25,6 +28,15 @@ public class duplicateEmail extends JFrame {
 		JLabel lblNewLabel = new JLabel("Duplicate Email");
 		lblNewLabel.setBounds(74, 63, 224, 129);
 		contentPane.add(lblNewLabel);
+		
+		JButton backBtn = new JButton("Back");
+		backBtn.setBounds(74, 172, 91, 23);
+		contentPane.add(backBtn);
+		backBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		});
 	}
 
 }
