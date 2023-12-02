@@ -1,5 +1,13 @@
 package Twitter;
 
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -8,289 +16,216 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.awt.event.ActionEvent;
-import javax.swing.ImageIcon;
 import java.awt.Color;
+import javax.swing.ImageIcon;
+import java.awt.Font;
+import javax.swing.JPasswordField;
 
-public class Signup extends JFrame {
+public class Signin extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	static String loggedInId;
 	private JPanel contentPane;
-	private JTextField nickname_textField;
-	private JTextField email_textField;
-	private JTextField number_textField;
-	private JTextField birth_textField;
-	private JTextField password_textField;
+	private JTextField Email_textField;
+	private JPasswordField Password_textField;
 
-	public Signup() {
-		super("Sign up");
-		setTitle("Sign up");
-		setSize(350, 500);
+	
+	public Signin() {
+		super("Sign in");
+		setTitle("Sign in");							
+		this.setSize(675, 500);	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// setBounds(100, 100, 450, 300);
+		
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-
-		// password
-
-		JLabel pw_label = new JLabel("password");
-
-		// nickname
-
-		JLabel nickname_label = new JLabel("nickname");
-
-		nickname_textField = new JTextField();
-		nickname_textField.setColumns(10);
-
-		// email
-
-		JLabel email_label = new JLabel("email");
-
-		email_textField = new JTextField();
-		email_textField.setColumns(10);
-
-		// phone number
-
-		JLabel number_label = new JLabel("phone number");
-
-		number_textField = new JTextField();
-		number_textField.setText("01012345678");
-		number_textField.setColumns(10);
-
-		// birth
-
-		JLabel birth_label = new JLabel("birth");
-
-		birth_textField = new JTextField();
-		birth_textField.setText("200300101");
-		birth_textField.setColumns(10);
-
-		// gender
-
-		JLabel gender_label = new JLabel("gender");
-
-		final JComboBox gender_comboBox = new JComboBox();
-		gender_comboBox.setModel(new DefaultComboBoxModel(new String[] { "Male", "Female" }));
-
-		// sign up button
-
-		JButton signup_button = new JButton("Sign up");
-		signup_button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				ConnectingDB dbConnector = new ConnectingDB();
-				try {
-					if(updateUser(dbConnector.getConnection(),password_textField.getText(),nickname_textField.getText(),
-							email_textField.getText(),number_textField.getText(),birth_textField.getText(), gender_comboBox.getSelectedItem().toString())	);
-					{
-						Signin signin= new Signin();
-						setVisible(false);
-						signin.setVisible(true);
-					}
-					
-					
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	
-
-			}
-		});
-
-		JButton BackBtn = new JButton("Back");
-		BackBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				setVisible(false);
-				Signin Signin = new Signin();
-				Signin.setLocationRelativeTo(null);
-				Signin.setVisible(true);
-			}
-		});
-
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel
-				.setIcon(new ImageIcon("C:\\Users\\82107\\eclipse-workspace\\Database-Twitter\\image\\bluebird2.png"));
 		
-		password_textField = new JTextField();
-		password_textField.setColumns(10);
+		Email_textField = new JTextField();
+		Email_textField.setColumns(10);
+		
+		JButton Login_button = new JButton("LOGIN");
+		
+		final ConnectingDB dbConnector = new ConnectingDB();
+		
+		Login_button.addActionListener(new ActionListener(){
+			   public void actionPerformed(ActionEvent ae){
+			      String textFieldValue = Email_textField.getText();
+			      char[] passwordCharArray = Password_textField.getPassword();
+			      String password = new String(passwordCharArray);
 
+			      // .... do some operation on value ...
+			      if (checkEmail(dbConnector.getConnection(), textFieldValue) && CheckPassword(dbConnector.getConnection(), textFieldValue, password)) {
+			    	  String tmp = returnId(dbConnector.getConnection(), textFieldValue);
+			    	  if(tmp!=null) {
+			    		  loggedInId=tmp;
+			    	  }
+			    	  else {
+				    	  LoginFail fail = new LoginFail();
+				    	  fail.setLocationRelativeTo(null);
+				    	  fail.setVisible(true);
+				      }
+			    	 
+			    	  Home home = new Home();
+			    	  home.setLocationRelativeTo(null);
+				      setVisible(false);
+				      home.setVisible(true);
+			      }
+			      else {
+			    	  LoginFail fail = new LoginFail();
+			    	  fail.setLocationRelativeTo(null);
+			    	  fail.setVisible(true);
+			      }
+			      
+			   }
+			});
+		
+		JButton SignUpBtn = new JButton("Sign Up");
+		SignUpBtn.addActionListener(new ActionListener(){
+			   public void actionPerformed(ActionEvent ae){
+			      setVisible(false);
+			      Signup Signup = new Signup();
+			      Signup.setLocationRelativeTo(null);
+					Signup.setVisible(true);
+			   }
+			});
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon("C:\\Users\\82107\\eclipse-workspace\\Database-Twitter\\image\\twitter-312464_640.png"));
+		
+		JLabel lblNewLabel_1 = new JLabel("See  what's happeing in the world right now");
+		lblNewLabel_1.setFont(new Font("Eras Bold ITC", Font.BOLD, 21));
+		
+		JLabel lblNewLabel_2 = new JLabel("Join us today");
+		lblNewLabel_2.setFont(new Font("Gadugi", Font.BOLD | Font.ITALIC, 16));
+		
+		Password_textField = new JPasswordField();
+		
+		JLabel lblNewLabel_3 = new JLabel("E-mail : ");
+		
+		JLabel lblNewLabel_4 = new JLabel("Password : ");
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGap(37)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-										.addComponent(number_label, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-										.addComponent(birth_label, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)
-										.addGroup(gl_contentPane.createSequentialGroup()
-											.addComponent(nickname_label, GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
-											.addPreferredGap(ComponentPlacement.RELATED))
-										.addGroup(gl_contentPane.createSequentialGroup()
-											.addComponent(pw_label, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-											.addPreferredGap(ComponentPlacement.RELATED))
-										.addGroup(gl_contentPane.createSequentialGroup()
-											.addComponent(email_label, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
-											.addPreferredGap(ComponentPlacement.RELATED)))
-									.addComponent(gender_label, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE))
-								.addGroup(gl_contentPane.createSequentialGroup()
-									.addComponent(BackBtn)
-									.addPreferredGap(ComponentPlacement.RELATED)))
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addGroup(gl_contentPane.createSequentialGroup()
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
-										.addComponent(birth_textField, Alignment.LEADING)
-										.addComponent(gender_comboBox, Alignment.LEADING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(signup_button)
-										.addComponent(number_textField)
-										.addComponent(nickname_textField)))
-								.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-										.addComponent(password_textField, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-										.addComponent(email_textField, 108, 108, 108))))
-							.addGap(81))
+							.addGap(22)
+							.addComponent(lblNewLabel_3, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(Email_textField, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(lblNewLabel_4, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(Password_textField, GroupLayout.PREFERRED_SIZE, 138, GroupLayout.PREFERRED_SIZE)
+							.addGap(34)
+							.addComponent(Login_button))
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-							.addGap(146))))
-		);
-		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-					.addGap(57)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(email_label)
-						.addComponent(email_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(30)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(pw_label)
-						.addComponent(password_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(33)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(nickname_label)
-						.addComponent(nickname_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(47)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(number_label)
-						.addComponent(number_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(28)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(birth_label)
-						.addComponent(birth_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(28)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(gender_comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(gender_label))
-					.addGap(50)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(BackBtn)
-						.addComponent(signup_button))
+							.addGap(77)
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblNewLabel_1, GroupLayout.PREFERRED_SIZE, 647, Short.MAX_VALUE)
+								.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNewLabel_2, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addGap(199)
+							.addComponent(SignUpBtn, GroupLayout.PREFERRED_SIZE, 253, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap())
 		);
+		gl_contentPane.setVerticalGroup(
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+						.addComponent(Email_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(Login_button)
+						.addComponent(lblNewLabel_3)
+						.addComponent(lblNewLabel_4)
+						.addComponent(Password_textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(72)
+					.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(lblNewLabel_1, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblNewLabel_2)
+					.addGap(18)
+					.addComponent(SignUpBtn)
+					.addGap(109))
+		);
+	
+		
+		
 		contentPane.setLayout(gl_contentPane);
 	}
-	
-	private static boolean updateUser(Connection con, String password, String nn, String email, String phoneNumber, String birth, String gender) {
-		 
-		 if(EmailExistsInTable(con, email)) {
-			 duplicateEmail error=new duplicateEmail();
-			 error.setVisible(true);
-			 return false;
-		 }
-		 else {
-		 String randomId = generateRandomId(con);
-	    String insertQuery = "INSERT INTO user ( id, email, password, nickname, phone_number, birth_date, gender) VALUES (?, ?, ?, ?, ?, ?, ?)";
-	    try {
-	        PreparedStatement state = con.prepareStatement(insertQuery);
-	     
-	        state.setString(1, randomId);
-	        state.setString(2, email);
-	        state.setString(3, password);
-	        state.setString(4, nn);
-	        state.setString(5, phoneNumber);
-	        state.setString(6, birth);
-	        state.setString(7, gender);
+	private static boolean CheckPassword(Connection con, String email, String password) {
+	    String sql = "SELECT password FROM user WHERE email = ?";
+	    try (PreparedStatement statement = con.prepareStatement(sql)) {
+	        // 쿼리의 파라미터 설정
+	        statement.setString(1, email);
 
-	        int rowsAffected = state.executeUpdate();
+	        // 쿼리 실행 및 결과 가져오기
+	        try (ResultSet resultSet = statement.executeQuery()) {
+	            if (resultSet.next()) {
+	                // 저장된 비밀번호 가져오기
+	                String storedPassword = resultSet.getString("password");
 
-	        if (rowsAffected > 0) {
-	            System.out.println("User ID saved to the database.");
-	           return true;
-	            
-	            
-	        } else {
-	            System.out.println("Failed to save user ID to the database.");
-	            return false;
+	                // 저장된 비밀번호가 존재하고 입력된 비밀번호와 일치하는지 확인
+	                return storedPassword != null && storedPassword.equals(password);
+	            }
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	    }}
-		 return false;
+	    }
+
+	    return false;
 	}
-	 public static String generateRandomId(Connection con) {
-	        while (true) {
-	            // 랜덤한 ID 생성
-	            long timestamp = System.currentTimeMillis();
-	            int randomInt = (int) (Math.random() * Integer.MAX_VALUE);
-	            long result = timestamp + randomInt;
-	            String randomId = Long.toString(result);
 
-	            // 생성한 ID가 특정 테이블에 이미 존재하는지 확인
-	            if (!idExistsInTable(con, randomId)) {
-	                return randomId;
-	            }
-	        }
-	    }
-
-	    private static boolean idExistsInTable(Connection con, String id) {
-	        // 특정 테이블에서 ID가 존재하는지 확인하는 로직
-	        String sql = "SELECT COUNT(*) FROM user WHERE id = ?";
+	private static boolean checkEmail(Connection con, String username) {
+	    // 데이터베이스 연결
+	    try {
+	        // SQL 쿼리 작성
+	        String sql = "SELECT * FROM user WHERE email = ?";
 	        try (PreparedStatement statement = con.prepareStatement(sql)) {
-	            statement.setString(1, id);
+	            // 쿼리의 파라미터 설정
+	            statement.setString(1, username);
+
+	            // 쿼리 실행 및 결과 가져오기
 	            try (ResultSet resultSet = statement.executeQuery()) {
-	                if (resultSet.next()) {
-	                    int count = resultSet.getInt(1);
-	                    return count > 0;
-	                }
+	                return resultSet.next(); // 결과가 있는지 확인하여 반환
 	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
 	        }
-	        return false;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
 	    }
-	    private static boolean EmailExistsInTable(Connection con, String email) {
-	        // 특정 테이블에서 ID가 존재하는지 확인하는 로직
-	        String sql = "SELECT COUNT(*) FROM user WHERE email = ?";
-	        try (PreparedStatement statement = con.prepareStatement(sql)) {
+
+	    return false;
+	}
+	private static String returnId(Connection con, String email) {
+		try {
+			String sql = "SELECT id FROM user WHERE email = ?";
+			try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            // 쿼리의 파라미터 설정
 	            statement.setString(1, email);
-	            try (ResultSet resultSet = statement.executeQuery()) {
-	                if (resultSet.next()) {
-	                    int count = resultSet.getInt(1);
-	                    return count > 0;
-	                }
-	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	        return false;
-	    }
 
+	            // 쿼리 실행 및 결과 가져오기
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	            	 if (resultSet.next()) {
+	                     String storedId = resultSet.getString("id"); // 결과가 있는지 확인하여 반환
+	                     
+	                     return storedId;
+	                 } else {
+	                     System.out.println("User not found for email: " + email);
+	                     return null; // 사용자가 존재하지 않을 경우 null 반환
+	                 }
+	            }
+	        }
+		}catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+		System.out.println("ERROR");
+		return null;
+	}
 
 }
