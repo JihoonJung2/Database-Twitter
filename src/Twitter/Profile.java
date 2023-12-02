@@ -96,6 +96,10 @@ public class Profile extends JFrame {
 		editBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		editBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				EditProfile editprofile=new EditProfile();
+				editprofile.setLocationRelativeTo(null);
+				editprofile.setVisible(true);
 			}
 		});
 		editBtn.setBackground(new Color(39, 162, 209));
@@ -119,7 +123,7 @@ public class Profile extends JFrame {
 		            try (ResultSet resultSet = statement.executeQuery()) {
 		            	 if (resultSet.next()) {
 		            		 int followerCount = resultSet.getInt("FollowerCount");
-			                    System.out.println("Follower count for user " + id + ": " + followerCount);
+			                    
 			                    return followerCount;
 		                 } else {
 		                     System.out.println("User not found for id: " + id);
@@ -146,7 +150,7 @@ public class Profile extends JFrame {
 	            try (ResultSet resultSet = statement.executeQuery()) {
 	                if (resultSet.next()) {
 	                    int followingCount = resultSet.getInt("FollowingCount");
-	                    System.out.println("Following count for user " + id + ": " + followingCount);
+	                   
 	                    return followingCount;
 	                } else {
 	                    System.out.println("User not found for id: " + id);
@@ -199,7 +203,7 @@ public class Profile extends JFrame {
 		            try (ResultSet resultSet = statement.executeQuery()) {
 		            	 if (resultSet.next()) {
 		                     String storedNickname = resultSet.getString("nickname"); // 결과가 있는지 확인하여 반환
-		                     System.out.println(storedNickname);
+		                    
 		                     return storedNickname;
 		                 } else {
 		                     System.out.println("User not found for id: " + id);
