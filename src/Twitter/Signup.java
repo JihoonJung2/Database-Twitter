@@ -92,10 +92,12 @@ public class Signup extends JFrame {
 				ConnectingDB dbConnector = new ConnectingDB();
 				try {
 					if(updateUser(dbConnector.getConnection(),password_textField.getText(),nickname_textField.getText(),
-							email_textField.getText(),number_textField.getText(),birth_textField.getText(), gender_comboBox.getSelectedItem().toString())	);
+							email_textField.getText(),number_textField.getText(),birth_textField.getText(), gender_comboBox.getSelectedItem().toString())	)
 					{
+						
 						Signin signin= new Signin();
 						setVisible(false);
+						signin.setLocationRelativeTo(null);
 						signin.setVisible(true);
 					}
 					
@@ -211,6 +213,7 @@ public class Signup extends JFrame {
 		 
 		 if(EmailExistsInTable(con, email)) {
 			 duplicateEmail error=new duplicateEmail();
+			 error.setLocationRelativeTo(null);
 			 error.setVisible(true);
 			 return false;
 		 }
