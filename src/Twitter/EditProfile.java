@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.SwingConstants;
 
 public class EditProfile extends JFrame {
 
@@ -24,7 +25,7 @@ public class EditProfile extends JFrame {
 	private JTextField emailLbl;
 	private JTextField passwordLbl;
 	private JTextField nicknameLbl;
-	private JTextField pnLnl;
+	private JTextField pnLbl;
 	private JTextField birthLbl;
 
 	
@@ -52,9 +53,16 @@ public class EditProfile extends JFrame {
 		contentPane.add(emailLbl);
 		emailLbl.setColumns(10);
 		
-		JButton btnNewButton = new JButton("Change email");
-		btnNewButton.setBounds(224, 84, 131, 23);
-		contentPane.add(btnNewButton);
+		final JButton emailBtn = new JButton("Change email");
+		emailBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		emailBtn.setBounds(224, 84, 131, 23);
+		contentPane.add(emailBtn);
+		emailBtn.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	            editSome(dbConnector.getConnection(), Signin.loggedInId,"email", emailLbl.getText());
+	         }
+	      });
+		
 		
 		passwordLbl = new JTextField();
 		passwordLbl.setText(getIdToSome(dbConnector.getConnection(), Signin.loggedInId, "password"));
@@ -62,9 +70,15 @@ public class EditProfile extends JFrame {
 		contentPane.add(passwordLbl);
 		passwordLbl.setColumns(10);
 		
-		JButton btnNewButton_1 = new JButton("Change password");
-		btnNewButton_1.setBounds(224, 146, 139, 23);
-		contentPane.add(btnNewButton_1);
+		final JButton passwordBtn = new JButton("Change password");
+		passwordBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		passwordBtn.setBounds(224, 146, 139, 23);
+		contentPane.add(passwordBtn);
+		passwordBtn.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	            editSome(dbConnector.getConnection(), Signin.loggedInId,"password", passwordLbl.getText());
+	         }
+	      });
 		
 		nicknameLbl = new JTextField();
 		nicknameLbl.setText(getIdToSome(dbConnector.getConnection(), Signin.loggedInId, "nickname"));
@@ -72,15 +86,21 @@ public class EditProfile extends JFrame {
 		contentPane.add(nicknameLbl);
 		nicknameLbl.setColumns(10);
 		
-		JButton btnNewButton_2 = new JButton("Change nickname");
-		btnNewButton_2.setBounds(224, 219, 139, 23);
-		contentPane.add(btnNewButton_2);
+		final JButton nicknameBtn = new JButton("Change nickname");
+		nicknameBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		nicknameBtn.setBounds(224, 219, 139, 23);
+		contentPane.add(nicknameBtn);
+		nicknameBtn.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	            editSome(dbConnector.getConnection(), Signin.loggedInId,"nickname", nicknameLbl.getText());
+	         }
+	      });
 		
-		pnLnl = new JTextField();
-		pnLnl.setText(getIdToSome(dbConnector.getConnection(), Signin.loggedInId, "phone_number"));
-		pnLnl.setBounds(55, 289, 158, 21);
-		contentPane.add(pnLnl);
-		pnLnl.setColumns(10);
+		pnLbl = new JTextField();
+		pnLbl.setText(getIdToSome(dbConnector.getConnection(), Signin.loggedInId, "phone_number"));
+		pnLbl.setBounds(48, 289, 158, 21);
+		contentPane.add(pnLbl);
+		pnLbl.setColumns(10);
 		
 		birthLbl = new JTextField();
 		birthLbl.setText(getIdToSome(dbConnector.getConnection(), Signin.loggedInId, "birth_date"));
@@ -88,19 +108,34 @@ public class EditProfile extends JFrame {
 		contentPane.add(birthLbl);
 		birthLbl.setColumns(10);
 		
-		JButton btnNewButton_3 = new JButton("Change Phone number");
-		btnNewButton_3.setBounds(220, 288, 155, 23);
-		contentPane.add(btnNewButton_3);
+		final JButton phoneNumberBtn = new JButton("Change Phone number");
+		phoneNumberBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		phoneNumberBtn.setBounds(220, 288, 167, 23);
+		contentPane.add(phoneNumberBtn);
+		phoneNumberBtn.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	            editSome(dbConnector.getConnection(), Signin.loggedInId,"phone_number", pnLbl.getText());
+	         }
+	      });
 		
-		JButton btnNewButton_4 = new JButton("Change birth-date");
-		btnNewButton_4.setBounds(224, 360, 139, 23);
-		contentPane.add(btnNewButton_4);
+		final JButton birthBtn = new JButton("Change birth-date");
+		birthBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		birthBtn.setBounds(224, 360, 139, 23);
+		contentPane.add(birthBtn);
+		birthBtn.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	            editSome(dbConnector.getConnection(), Signin.loggedInId,"birth_date", birthLbl.getText());
+	         }
+	      });
 		
 		JButton BackBtn = new JButton("Back");
 		BackBtn.setBounds(144, 418, 91, 23);
 		contentPane.add(BackBtn);
 		BackBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Profile profile = new Profile();
+				profile.setLocationRelativeTo(null);
+				profile.setVisible(true);
 				setVisible(false);
 			}
 		});
@@ -132,5 +167,28 @@ public class EditProfile extends JFrame {
 	        // 리소스 정리 등 필요한 부분
 	    }
 	}
-	
+	public static void editSome(Connection con, String id, String schema, String value) {
+	    try {
+	        String sql = "UPDATE user SET " + schema + " = ? WHERE id = ?";
+	        try (PreparedStatement statement = con.prepareStatement(sql)) {
+	            statement.setString(1, value);
+	            statement.setString(2, id);
+
+	            // 쿼리 실행
+	            int rowsUpdated = statement.executeUpdate();
+
+	            if (rowsUpdated > 0) {
+	                updateSuccess success = new updateSuccess();
+	                success.setVisible(true);
+	            } else {
+	                System.out.println("레코드가 업데이트되지 않았습니다. 해당하는 ID가 없을 수 있습니다.");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    } finally {
+	        // 리소스 정리 등 필요한 부분
+	    }
+	}
+
 }
